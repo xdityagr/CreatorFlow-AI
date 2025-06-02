@@ -24,10 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const currentUrl = window.location.pathname;
-            // The split().slice().join() logic is a bit brittle for general use.
-            // A simpler approach for this specific URL structure is often better if fixed.
-            // For example, if currentUrl is /influencer/search/some_id, you can just use that.
-            const newUrl = `${currentUrl.split('?')[0]}?${queryParams.join('&')}`; // Ensure we don't duplicate query string
+
+            const newUrl = `${currentUrl.split('?')[0]}?${queryParams.join('&')}`;
             window.location.href = newUrl;
         });
     }
@@ -82,19 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 clearInterval(interval);
                                 clearInterval(intervalId);
                                 intervalId = setInterval(() => pollNegotiationStatus(influencerId, campaignId), 3000);
-                                // All steps complete, update summary
-                                // if (negotiationSummaryContent) {
-                                //     negotiationSummaryContent.innerHTML = `
-                                //         <h4 class="text-success mb-3">Negotiation Complete!</h4>
-                                //         <p><strong>Final Status:</strong> <span class="text-success fw-bold">Influencer has agreed to terms.</span></p>
-                                //         <p><strong>Next Steps:</strong> Contract drafting and campaign activation.</p>
-                                //         <p class="text-muted"><small>Further details would be provided by the AI.</small></p>
-                                //     `;
-                                // }
-                                // startNegotiationBtn.disabled = false;
-                                // startNegotiationBtn.textContent = 'Negotiation Complete!';
-                                // startNegotiationBtn.classList.remove('btn-secondary');
-                                // startNegotiationBtn.classList.add('btn-success');
+
                             }
                         }, 1500); // Simulate delay between steps (1.5 seconds)
                     }
