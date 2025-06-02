@@ -15,32 +15,6 @@ from .calling import VapiClient
 from dotenv import load_dotenv
 load_dotenv() 
 
-campaign_info = {
-    "title":"AI EVENT",
-    "description": "An AI event organised by NextGen AI solutions pvt. limited. This event is to bring together ai masters from around the world.",
-    "budget":"1000",
-    "platform" : "Instagram, Tiktok",
-    "goals": "",
-    "age_group": "18-24",
-    "company_name": "NextGen AI solutions pvt. ltd.", 
-    "contact_info":"+918368763700"
-    }
-
-influencer_info = {
-    "name":"Siddharth",
-    "email": "adityagaur.home@gmail.com",
-    "niche": "gaming",
-    "followers": 144507,
-    "engagement_rate": 3.47,
-    "bio": "Throw thus another military wall her. | Collab with @nike, @adidas",
-    "past_collabs": [
-      "Nike",
-      "Adidas"
-    ],
-    "roi_score": 7.25,
-    "language": "Hindi",
-    "age_range": "18-24"
-}
 
 class MasterLLM:
     def __init__(self):
