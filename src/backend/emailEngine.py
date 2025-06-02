@@ -9,8 +9,8 @@ from email.header import decode_header
 import threading
 import logging
 from email.utils import make_msgid, parsedate_to_datetime
-import pytz # Recommended for robust timezone handling
-import re # For cleaning email body
+import pytz 
+import re 
 from .aiengine import MasterLLM
 
 # Configure logging
@@ -136,10 +136,7 @@ class EmailFollowUpSystem:
             if result == 'OK' and data[0]:
                 email_ids = data[0].split()
                 logger.info(f"Found {len(email_ids)} total emails from {to_email}")
-                
-                # Sort emails by date descending to process newest first
-                # This requires fetching headers first, or iterating in reverse from IMAP results
-                # For simplicity, we'll just reverse the IMAP list which is usually oldest first
+            
                 
                 for email_id in reversed(email_ids):
                     try:
@@ -187,8 +184,7 @@ class EmailFollowUpSystem:
                                 
                                 is_reply = False
                                 if original_message_id:
-                                    # Ensure original_message_id is within the full In-Reply-To/References string
-                                    # as these headers can contain multiple message IDs separated by spaces
+
                                     if original_message_id in in_reply_to.split() or original_message_id in references.split():
                                         is_reply = True
                                         logger.info(f"🎉 REPLY DETECTED (Message-ID header) from {to_email}: {subject}")
@@ -218,12 +214,7 @@ class EmailFollowUpSystem:
                                     logger.info(f"❌ Not a reply to our specific email - no matching Message-ID or strong subject correlation.")
                             else:
                                 logger.info(f"⏰ Email {email_id} is older than or same as our sent time ({email_date} vs {sent_time_utc}) - skipping for further check.")
-                                # Since emails are reversed, if we hit an old one, subsequent ones will also be old.
-                                # This optimization can break if IMAP server does not guarantee strict time order.
-                                # For safety, iterate all. But with a well-behaved server, this can be uncommented:
-                                # mail.close()
-                                # mail.logout()
-                                # return False, None, None # No more relevant emails to check
+
                     except Exception as e:
                         logger.error(f"Error processing email {email_id}: {str(e)}")
                         continue
@@ -400,8 +391,7 @@ def main():
     # Start monitoring system
     email_system.start_monitoring()
     
-    # Send an email with follow-up
-    # Set a very short timeout for quick testing (e.g., 0.001 hours = ~3.6 seconds)
+
     email_system.send_with_followup(
         to_email='adityagaur.home@gmail.com', # Replace with a test email you can reply from
         subject='Important Meeting Request - Test',
@@ -410,7 +400,6 @@ def main():
     )
     
     # Keep the program running in the main thread
-    # This allows the monitoring thread to run in the background
     try:
         while True:
             # You can check pending emails from here too, for UI updates or other logic
