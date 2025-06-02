@@ -2,4 +2,4 @@ flask
 google-genai
 dotenv
 pytz
-imaplib
+uvicorn
