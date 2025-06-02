@@ -1,6 +1,5 @@
 flask
 google-genai
-smtplib
 dotenv
 pytz
 imaplib
