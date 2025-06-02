@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}AI Negotiation for {{ influencer.name }}{% endblock %}
+
+{% block content %}
+    <h2 class="text-center mb-4 text-primary">AI Negotiation for <span class="text-secondary">{{ influencer.name }}</span> (Campaign: <span class="text-secondary">{{ campaign.title }}</span>)</h2>
+
+    <div class="card p-4 shadow-sm border-0 mb-4">
+        <h3 class="card-title text-primary mb-3">Negotiation Details</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Influencer:</strong> {{ influencer.name }} ({{ influencer.niche | capitalize }})</p>
+                <p><strong>Followers:</strong> {{ "{:,.0f}".format(influencer.followers) }}</p>
+                <p><strong>Engagement Rate:</strong> {{ "%.2f"|format(influencer.engagement_rate) }}%</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Campaign Title:</strong> {{ campaign.title }}</p>
+                <p><strong>Campaign Budget:</strong> ${{ campaign.budget }}</p>
+                <p><strong>Campaign Goal:</strong> {{ campaign.goals }}</p> {# Corrected from campaign.goal to campaign.goals #}
+            </div>
+        </div>
+        <hr class="my-3">
+        <div class="text-center">
+            <button id="start-negotiation-btn" class="btn btn-primary btn-lg mt-3"
+                    data-influencer-id="{{ influencer.id }}"
+                    data-campaign-id="{{ campaign.id }}">Start AI Negotiation</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div id="negotiation-progress" class="negotiation-section">
+                <h3>Negotiation Progress</h3>
+                <div id="negotiation-progress-steps">
+                    <p class="text-muted">Click "Start AI Negotiation" to begin the process.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div id="negotiation-summary" class="negotiation-section">
+                <h3>Negotiation Summary</h3>
+                <div id="negotiation-summary-content">
+                    <p class="text-muted">Summary will appear here once negotiation is complete.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const startNegotiationBtn = document.getElementById('start-negotiation-btn');
+        const negotiationProgressSteps = document.getElementById('negotiation-progress-steps');
+        const negotiationSummaryContent = document.getElementById('negotiation-summary-content');
+
+        let intervalId; // To store the interval for polling
+
+        // Function to update the UI based on negotiation status
+        function updateNegotiationUI(statusData) {
+            negotiationProgressSteps.innerHTML = ''; // Clear previous steps
+
+            // Display message based on status
+            let messageElement = document.createElement('p');
+            messageElement.textContent = statusData.message || 'Updating status...';
+            
+            // Remove previous status classes
+            messageElement.classList.remove('text-success', 'text-info', 'text-warning', 'text-danger');
+
+            // Apply styling based on the 'status' field
+            switch (statusData.status) {
+                case 'initiated':
+                    messageElement.classList.add('text-info'); // Blue for initiated/in-progress
+                    break;
+                case 'email_sent':
+                    messageElement.classList.add('text-success'); // Green for successful email send
+                    break;
+                case 'call_initiated':
+                    messageElement.classList.add('text-success'); // Green for call started
+                    break;
+                case 'negotiation_complete':
+                    messageElement.classList.add('text-success'); // Green for successful completion
+                    // Also update summary if applicable
+                    negotiationSummaryContent.innerHTML = `<p><strong>Outcome:</strong> ${statusData.message}</p>`;
+                    break;
+                case 'email_send_failed':
+                case 'error':
+                case 'error_during_call_initiation':
+                    messageElement.classList.add('text-danger'); // Red for any errors
+                    break;
+                case 'not_started':
+                case 'not_found':
+                default:
+                    messageElement.classList.add('text-muted'); // Grey for default/unknown
+                    break;
+            }
+            negotiationProgressSteps.appendChild(messageElement);
+
+            // Display individual steps
+            if (statusData.steps && statusData.steps.length > 0) {
+                statusData.steps.forEach(step => {
+                    let stepElement = document.createElement('p');
+                    stepElement.textContent = `• ${step}`;
+                    negotiationProgressSteps.appendChild(stepElement);
+                });
+            }
+
+            // Stop polling if negotiation is complete or in a final error state
+            if (['negotiation_complete', 'error', 'email_send_failed', 'error_during_call_initiation'].includes(statusData.status)) {
+                clearInterval(intervalId);
+                startNegotiationBtn.disabled = false; // Re-enable if needed for new negotiation
+            } else {
+                startNegotiationBtn.disabled = true; // Keep disabled while in progress
+            }
+        }
+
+        // Function to poll for negotiation status
+        function pollNegotiationStatus(influencerId, campaignId) {
+            fetch(`/api/negotiation_status/${influencerId}/${campaignId}`)
+                .then(response => response.json())
+                .then(data => {
+                    updateNegotiationUI(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching negotiation status:', error);
+                    negotiationProgressSteps.innerHTML = `<p class="text-danger">Failed to fetch negotiation status: ${error.message}</p>`;
+                    clearInterval(intervalId); // Stop polling on error
+                });
+        }
+
+        // Event listener for the Start AI Negotiation button
+        if (startNegotiationBtn) {
+            startNegotiationBtn.addEventListener('click', function() {
+                const influencerId = this.dataset.influencerId;
+                const campaignId = this.dataset.campaignId;
+
+                // Disable button and show initial message
+                startNegotiationBtn.disabled = true;
+                negotiationProgressSteps.innerHTML = '<p class="text-info">Initiating negotiation...</p>';
+
+                // Send request to start negotiation
+                fetch('/api/start_negotiation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ influencer_id: influencerId, campaign_id: campaignId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Start negotiation response:', data);
+                    updateNegotiationUI(data); // Update UI immediately with the response
+                    
+                    // Start polling for updates every 3 seconds (adjust as needed)
+                    // Clear any existing interval to prevent multiple polls
+                    clearInterval(intervalId); 
+                    intervalId = setInterval(() => pollNegotiationStatus(influencerId, campaignId), 3000);
+                })
+                .catch(error => {
+                    console.error('Error starting negotiation:', error);
+                    negotiationProgressSteps.innerHTML = `<p class="text-danger">Error: Could not start negotiation. ${error.message}</p>`;
+                    startNegotiationBtn.disabled = false; // Re-enable button on error
+                });
+            });
+
+            // Optional: On page load, try to fetch current status if a negotiation might be ongoing
+            // This assumes influencer.id and campaign.id are available from Jinja2 context
+            const initialInfluencerId = startNegotiationBtn.dataset.influencerId;
+            const initialCampaignId = startNegotiationBtn.dataset.campaignId;
+            if (initialInfluencerId && initialCampaignId) {
+                 // Poll once immediately, then set interval
+                 pollNegotiationStatus(initialInfluencerId, initialCampaignId);
+                 intervalId = setInterval(() => pollNegotiationStatus(initialInfluencerId, initialCampaignId), 3000);
+            }
+        }
+    });
+</script>
+{% endblock %}

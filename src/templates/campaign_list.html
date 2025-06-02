@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Campaigns Dashboard{% endblock %}
+
+{% block content %}
+    <h2 class="text-center mb-4 text-primary">Your Campaigns</h2>
+
+    {% if campaigns %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for campaign in campaigns %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-primary">{{ campaign.title }}</h5>
+                            <p class="card-text text-muted mb-2"><small><strong>Description:</strong> {{ campaign.description | truncate(100) }}</small></p>
+                            <p class="card-text mb-1"><strong>Budget:</strong> ${{ campaign.budget }}</p>
+                            <p class="card-text mb-1"><strong>Niche:</strong> <span class="badge bg-info">{{ campaign.niche | capitalize }}</span></p>
+                            <p class="card-text mb-1"><strong>Platform:</strong> <span class="badge bg-secondary">{{ campaign.platform | capitalize }}</span></p>
+                            <p class="card-text mb-3"><strong>Goal:</strong> {{ campaign.goal | truncate(80) }}</p>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('influencer_search', campaign_id=campaign.id) }}" class="btn btn-success btn-sm w-100">Find Influencers</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            No campaigns created yet. <a href="{{ url_for('campaign_create') }}" class="alert-link">Create your first campaign!</a>
+        </div>
+    {% endif %}
+{% endblock %}

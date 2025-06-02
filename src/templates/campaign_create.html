@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Campaign{% endblock %}
+
+{% block content %}
+    <h2 class="text-center mb-4 text-primary">Create New Campaign</h2>
+    <div class="card p-4 shadow-sm border-0">
+        <form action="{{ url_for('campaign_create') }}" method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Campaign Title:</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="budget" class="form-label">Budget ($):</label>
+                <input type="number" class="form-control" id="budget" name="budget" required>
+            </div>
+            <div class="mb-3">
+                <label for="niche" class="form-label">Niche (e.g., Gaming, Fashion, Tech):</label>
+                <input type="text" class="form-control" id="niche" name="niche" required>
+            </div>
+            <div class="mb-3">
+                <label for="platform" class="form-label">Platform (e.g., Instagram, TikTok, YouTube):</label>
+                <input type="text" class="form-control" id="platform" name="platform" required>
+            </div>
+            <div class="mb-3">
+                <label for="company_name" class="form-label">Company Name:</label>  {# ADDED THIS FIELD #}
+                <input type="text" class="form-control" id="company_name" name="company_name" required> {# ADDED THIS FIELD #}
+            </div>
+            <div class="mb-3">
+                <label for="contact_info" class="form-label">Company Contact Info (e.g., Phone Number, Email):</label>
+                <input type="text" class="form-control" id="contact_info" name="contact_info" required>
+            </div>
+            <div class="mb-3">
+                <label for="goal" class="form-label">Campaign Goal (e.g., Increase brand awareness, Drive sales):</label>
+                <textarea class="form-control" id="goal" name="goal" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="age_group" class="form-label">Target Age Group (e.g., 18-24, 25-34, All):</label>
+                <input type="text" class="form-control" id="age_group" name="age_group" placeholder="e.g., 18-24" required>
+            </div>
+            <div class="mb-3">
+                <label for="additional_params" class="form-label">Additional Parameters (Optional):</label>
+                <textarea class="form-control" id="additional_params" name="additional_params" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Campaign</button>
+        </form>
+    </div>
+{% endblock %}

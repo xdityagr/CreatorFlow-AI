@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+    <div class="text-center py-5 bg-light rounded-3 shadow-sm">
+        <h1 class="display-4 fw-bold text-primary">Welcome to CreatorFlowAI</h1>
+        <p class="lead mt-3 mb-4 text-secondary">Your platform for seamless influencer campaign management and AI-powered negotiations.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+        <a href="{{ url_for('campaign_create') }}" class="btn btn-outline-secondary btn-lg px-4">Create New Campaign</a>
+    </div>
+{% endblock %}
